@@ -2,7 +2,7 @@
  * @Author: Jindai Kirin 
  * @Date: 2018-11-02 20:55:42 
  * @Last Modified by: Jindai Kirin
- * @Last Modified time: 2018-11-03 15:05:20
+ * @Last Modified time: 2018-11-03 15:51:41
  */
 
 const getDuration = require('get-video-duration');
@@ -18,8 +18,8 @@ function clogln(str = '') {
 	console.log(str);
 }
 
-function sleep(ms) {
-	return new Promise(resolve => setTimeout(resolve, ms));
+function sleep(s) {
+	return new Promise(resolve => setTimeout(resolve, s * 1000));
 }
 
 class UoocClient {
@@ -27,6 +27,7 @@ class UoocClient {
 		const API = new UoocAPI(cookie);
 
 		let list;
+		speed *= 0.97;
 
 		clog("获取课程视频列表");
 		await API.getCatalogList(cid).then(ret => {
@@ -75,26 +76,29 @@ class UoocClient {
 						break;
 					}
 					await getDuration(video_url).then(duration => video_length = duration.toFixed(2));
-					let video_pos = parseFloat(resource.video_pos);
+					let video_pos = parseFloat(resource.video_pos); //video_pos is a "number"
+					let vmax = parseFloat(video_length);
 
 					//模拟学习进度
 					let finished = false;
 					while (true) {
-						await API.markVideoLearn(cid, chapter.id, section.id, resource.id, video_length, video_pos).then(ret => {
+						clogln('\t' + video_pos.toFixed(2) + '/' + video_length);
+
+						await API.markVideoLearn(cid, chapter.id, section.id, resource.id, video_length, video_pos.toFixed(2)).then(ret => {
 							if (ret.code != 1) throw new Error(ret.msg);
 							finished = ret.data.finished;
 						});
-						clogln('\t' + video_pos + '/' + video_length);
+
 						if (finished) break;
-						video_pos += 60 * speed - Math.random();
-						video_pos = Number(video_pos).toFixed(2);
+						video_pos += 60 * speed + Math.random();
 
 						let reduce = 0;
-						if (video_pos > video_length) {
-							reduce = Number((video_pos - video_length) / speed - 3).toFixed(2);
-							video_pos = video_length;
+						if (video_pos > vmax) {
+							reduce = (video_pos - vmax) / speed;
+							video_pos = vmax;
 						}
-						await sleep(60 * 1000 - reduce);
+
+						await sleep(65 - reduce);
 					}
 				}
 			}
