@@ -2,7 +2,7 @@
  * @Author: Jindai Kirin 
  * @Date: 2018-11-02 20:55:42 
  * @Last Modified by: Jindai Kirin
- * @Last Modified time: 2018-11-03 11:02:12
+ * @Last Modified time: 2018-11-03 15:05:20
  */
 
 const getDuration = require('get-video-duration');
@@ -71,7 +71,7 @@ class UoocClient {
 					//资源信息
 					let video_url, video_length;
 					for (let key in resource.video_url) {
-						video_url = resource.video_url[key].source;
+						video_url = encodeURI(resource.video_url[key].source);
 						break;
 					}
 					await getDuration(video_url).then(duration => video_length = duration.toFixed(2));
