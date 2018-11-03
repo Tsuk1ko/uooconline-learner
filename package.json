@@ -1,0 +1,30 @@
+{
+  "name": "uooconline-learner",
+  "version": "1.0.0",
+  "description": "替你学习",
+  "main": "index.js",
+  "dependencies": {
+    "axios": "^0.18.0",
+    "get-video-duration": "^0.4.0",
+    "qs": "^6.5.2"
+  },
+  "devDependencies": {},
+  "scripts": {
+	"start": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Tsuk1ko/uooconline-learner.git"
+  },
+  "keywords": [
+    "uooc",
+    "uooconline"
+  ],
+  "author": "Jindai Kirin",
+  "license": "GPL-3.0-or-later",
+  "bugs": {
+    "url": "https://github.com/Tsuk1ko/uooconline-learner/issues"
+  },
+  "homepage": "https://github.com/Tsuk1ko/uooconline-learner#readme"
+}
