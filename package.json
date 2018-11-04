@@ -1,16 +1,18 @@
 {
   "name": "uooconline-learner",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "替你学习",
   "main": "index.js",
   "dependencies": {
     "axios": "^0.18.0",
     "get-video-duration": "^0.4.0",
+    "parse-srt": "^1.0.0-alpha",
     "qs": "^6.5.2"
   },
   "devDependencies": {},
   "scripts": {
 	"start": "node index.js",
+    "subtitle": "node index.js subtitle",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {

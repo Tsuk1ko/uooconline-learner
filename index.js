@@ -12,4 +12,7 @@ const speed = 2;
 /**
  * main
  */
-new(require('./src/uoocclient'))().learn(cookie, cid, speed).catch(e => console.error(e));
+const args = process.argv.splice(2);
+const uooc = new(require('./src/uoocclient'))(cookie);
+if (args[0] && args[0] == "subtitle") uooc.downloadSubtitles(cid);
+else uooc.learn(cid, speed).catch(e => console.error(e));

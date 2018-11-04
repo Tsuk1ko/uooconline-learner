@@ -2,11 +2,13 @@
  * @Author: Jindai Kirin 
  * @Date: 2018-11-02 20:55:42 
  * @Last Modified by: Jindai Kirin
- * @Last Modified time: 2018-11-03 15:51:41
+ * @Last Modified time: 2018-11-04 18:08:26
  */
 
 const getDuration = require('get-video-duration');
 const UoocAPI = require('./uoocapi');
+const srt2txt = require('./srt2txt');
+const Fs = require('fs');
 
 const VIDEO_MODE = 10;
 
@@ -23,8 +25,64 @@ function sleep(s) {
 }
 
 class UoocClient {
-	async learn(cookie, cid, speed) {
-		const API = new UoocAPI(cookie);
+	constructor(cookie) {
+		this.API = new UoocAPI(cookie);
+	}
+
+	async downloadSubtitles(cid) {
+		const API = this.API;
+
+		let list;
+
+		clog("获取课程视频列表");
+		await API.getCatalogList(cid).then(ret => {
+			if (ret.code != 1) throw new Error(ret.msg);
+			list = ret.data;
+		});
+		clogln(" √");
+
+		//章节
+		for (let chapter of list) {
+			let saveFile = `./subtitles/${cid}-${chapter.number}.txt`;
+			if (Fs.existsSync(saveFile)) continue;
+
+			Fs.writeFileSync(saveFile, chapter.name + '\n\n', {
+				'flag': 'a'
+			});
+
+			//小节
+			for (let section of chapter.children) {
+				//资源点
+				let resources;
+				await API.getUnitLearn(cid, chapter.id, section.id).then(ret => {
+					if (ret.code != 1) {
+						Fs.unlinkSync(saveFile);
+						throw new Error(ret.msg);
+					}
+					resources = ret.data;
+				});
+
+				for (let resource of resources) {
+					if (resource.type != VIDEO_MODE) continue;
+
+					//字幕
+					let subtitle, txt;
+					for (let key in resource.subtitle) {
+						subtitle = resource.subtitle[key][0];
+						break;
+					}
+					clogln(subtitle.title);
+					await srt2txt(subtitle.uri).then(ret => txt = ret);
+					Fs.writeFileSync(saveFile, subtitle.title + '\n\n' + txt + '\n\n', {
+						'flag': 'a'
+					});
+				}
+			}
+		}
+	}
+
+	async learn(cid, speed) {
+		const API = this.API;
 
 		let list;
 		speed *= 0.97;
