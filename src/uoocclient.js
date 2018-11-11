@@ -2,7 +2,7 @@
  * @Author: Jindai Kirin 
  * @Date: 2018-11-02 20:55:42 
  * @Last Modified by: Jindai Kirin
- * @Last Modified time: 2018-11-04 18:08:26
+ * @Last Modified time: 2018-11-11 18:04:30
  */
 
 const getDuration = require('get-video-duration');
@@ -68,11 +68,15 @@ class UoocClient {
 					//字幕
 					let subtitle, txt;
 					for (let key in resource.subtitle) {
+						let pass = true;
 						subtitle = resource.subtitle[key][0];
-						break;
+						await srt2txt(subtitle.uri).then(ret => txt = ret).catch(() => pass = false);
+						if (pass) {
+							clogln('[' + key + '] ' + subtitle.title);
+							break;
+						}
 					}
-					clogln(subtitle.title);
-					await srt2txt(subtitle.uri).then(ret => txt = ret);
+
 					Fs.writeFileSync(saveFile, subtitle.title + '\n\n' + txt + '\n\n', {
 						'flag': 'a'
 					});
@@ -128,12 +132,13 @@ class UoocClient {
 					clogln();
 
 					//资源信息
-					let video_url, video_length;
+					let video_length;
 					for (let key in resource.video_url) {
-						video_url = encodeURI(resource.video_url[key].source);
-						break;
+						let pass = true;
+						let video_url = encodeURI(resource.video_url[key].source);
+						await getDuration(video_url).then(duration => video_length = duration.toFixed(2)).catch(() => pass = false);
+						if (pass) break;
 					}
-					await getDuration(video_url).then(duration => video_length = duration.toFixed(2));
 					let video_pos = parseFloat(resource.video_pos); //video_pos is a "number"
 					let vmax = parseFloat(video_length);
 
